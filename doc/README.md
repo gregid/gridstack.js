@@ -24,7 +24,7 @@ gridstack.js API
   - [addWidget(el, [options])](#addwidgetel-options)
   - [batchUpdate()](#batchupdate)
   - [compact()](#compact)
-  - [cellHeight(val, noUpdate)](#cellheightval-noupdate)
+  - [cellHeight(val: number, update = true)](#cellheightval-number-update--true)
   - [cellWidth()](#cellwidth)
   - [commit()](#commit)
   - [column(column, doNotPropagate)](#columncolumn-donotpropagate)
@@ -37,9 +37,12 @@ gridstack.js API
   - [getCellHeight()](#getcellheight)
   - [getCellFromPixel(position[, useOffset])](#getcellfrompixelposition-useoffset)
   - [getGridItems(): GridItemHTMLElement[]](#getgriditems-griditemhtmlelement)
+  - [getMargin()](#getmargin)
   - [isAreaEmpty(x, y, width, height)](#isareaemptyx-y-width-height)
+  - [load(layout: GridStackWidget[], boolean | ((w: GridStackWidget, add: boolean) => void)  = true)](#loadlayout-gridstackwidget-boolean--w-gridstackwidget-add-boolean--void---true)
   - [locked(el, val)](#lockedel-val)
   - [makeWidget(el)](#makewidgetel)
+  - [margin(value: numberOrString)](#marginvalue-numberorstring)
   - [maxHeight(el, val)](#maxheightel-val)
   - [minHeight(el, val)](#minheightel-val)
   - [maxWidth(el, val)](#maxwidthel-val)
@@ -50,13 +53,10 @@ gridstack.js API
   - [removeAll([removeDOM])](#removeallremovedom)
   - [resize(el, width, height)](#resizeel-width-height)
   - [resizable(el, val)](#resizableel-val)
-  - [restore(layout: GridStackWidget[], addAndRemove?: boolean)](#restorelayout-gridstackwidget-addandremove-boolean)
   - [save(): GridStackWidget[]](#save-gridstackwidget)
   - [setAnimation(doAnimate)](#setanimationdoanimate)
   - [setStatic(staticValue)](#setstaticstaticvalue)
   - [update(el, x, y, width, height)](#updateel-x-y-width-height)
-  - [getVerticalMargin()](#getverticalmargin)
-  - [verticalMargin(value, noUpdate)](#verticalmarginvalue-noupdate)
   - [willItFit(x, y, width, height, autoPosition)](#willitfitx-y-width-height-autoposition)
 - [Utils](#utils)
   - [GridStack.Utils.sort(nodes[, dir[, width]])](#gridstackutilssortnodes-dir-width)
@@ -76,11 +76,11 @@ gridstack.js API
    See [example](http://gridstack.github.io/gridstack.js/demo/advance.html)
 - `animate` - turns animation on (default: `false`)
 - `auto` - if `false` gridstack will not initialize existing items (default: `true`)
-- `cellHeight` - one cell height (default: `60`). Can be:
+- `cellHeight` - one cell height (default: `auto`). Can be:
   * an integer (px)
-  * a string (ex: '100px', '10em', '10rem', '10%')
+  * a string (ex: '100px', '10em', '10rem', '10%', `10vh')
   * 0 or null, in which case the library will not generate styles for rows. Everything must be defined in CSS files.
-  * `'auto'` - height will be calculated cell square initially.
+  * `'auto'` - height will be square cells initially.
 - `column` - number of columns (default: `12`) which can change on the fly with `column(N)` as well. See [example](http://gridstackjs.com/demo/column.html)
 - `ddPlugin` - class that implement drag'n'drop functionality for gridstack. If `false` grid will be static. (default: `null` - first available plugin will be used)
 - `disableDrag` - disallows dragging of widgets (default: `false`).
@@ -94,6 +94,13 @@ gridstack.js API
 - `handle` - draggable handle selector (default: `'.grid-stack-item-content'`)
 - `handleClass` - draggable handle class (e.g. `'grid-stack-item-content'`). If set `handle` is ignored (default: `null`)
 - `itemClass` - widget class (default: `'grid-stack-item'`)
+- `margin` - gap size around grid item and content (default: `10`). Can be:
+  * an integer (px)
+  * a string (ex: '2em', '20px', '2rem')
+- `marginTop`: numberOrString - can set individual settings (defaults to `margin`)
+- `marginRight`: numberOrString
+- `marginBottom`: numberOrString
+- `marginLeft`: numberOrString
 - `maxRow` - maximum rows amount. Default is `0` which means no max.
 - `minRow` - minimum rows amount which is handy to prevent grid from collapsing when empty. Default is `0`. You can also do this with `min-height` CSS attribute on the grid div in pixels, which will round to the closest row.
 - `minWidth` - minimal width. If grid width is less than or equal to, grid will be shown in one-column mode (default: `768`)
@@ -106,9 +113,7 @@ gridstack.js API
 - `row` - fix grid number of rows. This is a shortcut of writing `minRow:N, maxRow:N`. (default `0` no constrain)
 - `rtl` - if `true` turns grid to RTL. Possible values are `true`, `false`, `'auto'` (default: `'auto'`) See [example](http://gridstackjs.com/demo/rtl.html)
 - `staticGrid` - removes drag&drop&resize (default `false`). If `true` widgets are not movable/resizable by the user, but code can still move and oneColumnMode will still work. You don't even need jQueryUI draggable/resizable.  A CSS class `grid-stack-static` is also added to the container.
-- `verticalMargin` - vertical gap size (default: `20`). Can be:
-  * an integer (px)
-  * a string (ex: '2em', '20px', '2rem')
+- `styleInHead` - if `true` will add style element to `<head>` otherwise will add it to element's parent node (default `false`).
 
 ## Grid attributes
 
@@ -273,9 +278,9 @@ starts batch updates. You will see no changes until `commit()` method is called.
 
 re-layout grid items to reclaim any empty space.
 
-### cellHeight(val, noUpdate)
+### cellHeight(val: number, update = true)
 
-Update current cell height. This method rebuilds an internal CSS stylesheet (unless optional noUpdate=true). Note: You can expect performance issues if
+Update current cell height. This method rebuilds an internal CSS stylesheet (unless optional update=false). Note: You can expect performance issues if
 call this method too often.
 
 ```js
@@ -284,7 +289,7 @@ grid.cellHeight(grid.cellWidth() * 1.2);
 
 ### cellWidth()
 
-Gets current cell width.
+Gets current cell width (grid width / # of columns).
 
 ### commit()
 
@@ -370,9 +375,22 @@ Returns an object with properties `x` and `y` i.e. the column and row in the gri
 
 Return list of GridItem HTML dom elements (excluding temporary placeholder)
 
+### getMargin()
+
+returns current margin value.
+
 ### isAreaEmpty(x, y, width, height)
 
 Checks if specified area is empty.
+
+### load(layout: GridStackWidget[], boolean | ((w: GridStackWidget, add: boolean) => void)  = true)
+
+- load the widgets from a list (see `save()`). This will call `update()` on each (matching by id) or add/remove widgets that are not there.
+- Optional `addAndRemove` boolean (default true) or callback method can be passed to control if and how missing widgets can be added/removed, giving the user control of insertion.
+
+- used to restore a grid layout for a saved layout list (see `save()`).
+- `addAndRemove` boolean (default true) or callback method can be passed to control if and how missing widgets can be added/removed, giving the user control of insertion.
+- see [example](http://gridstackjs.com/demo/serialization.html)
 
 ### locked(el, val)
 
@@ -395,6 +413,12 @@ let grid = GridStack.init();
 grid.el.appendChild('<div id="gsi-1" data-gs-x="0" data-gs-y="0" data-gs-width="3" data-gs-height="2" data-gs-auto-position="true"></div>')
 grid.makeWidget('gsi-1');
 ```
+
+### margin(value: numberOrString)
+
+set the top/right/bottom/left margin between grid item and content. Parameters:
+- `value` - new margin value. see `cellHeight` for possible value formats.
+Note: you can instead use `marginTop | marginBottom | marginLeft | marginRight` so set the sides separately.
 
 ### maxHeight(el, val)
 
@@ -473,15 +497,9 @@ Enables/Disables resizing.
 - `el` - widget to modify
 - `val` - if `true` widget will be resizable.
 
-### restore(layout: GridStackWidget[], addAndRemove?: boolean)
-
-- used to restore a grid layout for a saved layout list (see `save()`).
-- Optional `addAndRemove` can be passed if new widgets should be added or removed if the are not present (`id` is used to look items up)
-- see [example](http://gridstackjs.com/demo/serialization.html)
-
 ### save(): GridStackWidget[]
 
-- returns the layout of the grid that can be serialized (list of item non default attributes, not just w,y,x,y but also min/max and id). See `restore()`
+- returns the layout of the grid that can be serialized (list of item non default attributes, not just w,y,x,y but also min/max and id). See `load()`
 - see [example](http://gridstackjs.com/demo/serialization.html)
 
 ### setAnimation(doAnimate)
@@ -505,17 +523,6 @@ Parameters:
 - `width`, `height` - new dimensions. If value is `null` or `undefined` it will be ignored.
 
 Updates widget position/size.
-
-### getVerticalMargin()
-
-returns current vertical margin value.
-
-### verticalMargin(value, noUpdate)
-
-Parameters:
-
-- `value` - new vertical margin value.
-- `noUpdate` - if true, styles will not be updated.
 
 ### willItFit(x, y, width, height, autoPosition)
 

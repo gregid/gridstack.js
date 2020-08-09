@@ -7,7 +7,7 @@
 */
 
 import { GridStack } from './gridstack';
-import { GridStackDragDropPlugin } from './gridstack-dragdrop-plugin';
+import { GridStackDD } from './gridstack-dd';
 
 export type numberOrString = number | string;
 export interface GridItemHTMLElement extends HTMLElement {
@@ -56,7 +56,7 @@ export interface GridstackOptions {
   /** class that implement drag'n'drop functionality for gridstack. If false grid will be static.
    * (default?: undefined - first available plugin will be used)
    */
-  ddPlugin?: false | typeof GridStackDragDropPlugin;
+  ddPlugin?: false | typeof GridStackDD;
 
   /** disallows dragging of widgets (default?: false) */
   disableDrag?: boolean;
@@ -90,6 +90,22 @@ export interface GridstackOptions {
 
   /** widget class (default?: 'grid-stack-item') */
   itemClass?: string;
+
+  /**
+   * gap size between grid item and content (default?: 10). see also marginTop, marginRight,... Can be:
+   *  an integer (px)
+   *  a string (ex: '2em', '20px', '2rem')
+   */
+  margin?: numberOrString;
+
+  /** optional way to specify each individual margin side - default to margin */
+  marginTop?: numberOrString;
+  marginRight?: numberOrString;
+  marginBottom?: numberOrString;
+  marginLeft?: numberOrString;
+
+  /** (internal) unit for margin (default? 'px') set when `margin` is set as string with unit (ex: 2rem') */
+  marginUnit?: string;
 
   /** maximum rows amount. Default? is 0 which means no maximum rows */
   maxRow?: number;
@@ -146,15 +162,8 @@ export interface GridstackOptions {
    */
   staticGrid?: boolean;
 
-  /**
-   * vertical gap size (default?: 20). Can be:
-   *  an integer (px)
-   *  a string (ex: '2em', '20px', '2rem')
-   */
-  verticalMargin?: numberOrString;
-
-  /** (internal) unit for verticalMargin (default? 'px') set when `verticalMargin` is set as string with unit (ex: 2rem') */
-  verticalMarginUnit?: string;
+  /** if `true` will add style element to `<head>` otherwise will add it to element's parent node (default `false`). */
+  styleInHead?: boolean;
 
   /** @internal */
   _isNested?: boolean;

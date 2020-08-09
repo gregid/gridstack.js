@@ -70,18 +70,24 @@ npm install --save gridstack
 
 ## Include
 
-* local:
+after you install:
+
+```js
+import 'gridstack/dist/gridstack.all.js';
+import 'gridstack/dist/gridstack.css';
+```
+* alternatively in html
 
 ```html
-<link rel="stylesheet" href="gridstack.min.css" />
-<script src="gridstack.all.js"></script>
+<link rel="stylesheet" href="node_modules/gridstack/dist/gridstack.min.css" />
+<script src="node_modules/gridstack/dist/gridstack.all.js"></script>
 ```
 
-* Using CDN (minimized):
+* or using CDN (minimized):
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.2/dist/gridstack.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.2/dist/gridstack.all.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.2.0/dist/gridstack.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/gridstack@1.2.0/dist/gridstack.all.js"></script>
 ```
 
 if you need to debug, look at the git demo/ examples for non min includes.
@@ -326,7 +332,7 @@ Recommend looking at the [many samples](./demo) for more code examples.
 
 ### jQuery Application
 
-We're working on implementing HTML5 drag'n'drop through the plugin system. Right now it is still jquery-ui based. Because of that we are still bundling `jquery` (3.4.1) + `jquery-ui` (1.12.1 minimal drag|drop|resize) internally in `gridstack.all.js`. IFF your app needs to bring it's own version instead, you should **instead** include `gridstack-poly.min.js` (optional IE support) + `gridstack.min.js` + `gridstack.jQueryUI.min.js` after you import your libs.
+We're working on implementing HTML5 drag'n'drop through the plugin system. Right now it is still jquery-ui based. Because of that we are still bundling `jquery` (3.5.1) + `jquery-ui` (1.12.1 minimal drag|drop|resize) internally in `gridstack.all.js`. IFF your app needs to bring your own version instead, you should **instead** include `gridstack-poly.min.js` (optional IE support) + `gridstack.min.js` + `gridstack.jQueryUI.min.js` after you import your JQ libs. But note that there are issue with jQuery and ES6 import (see [1306](https://github.com/gridstack/gridstack.js/issues/1306))
 
 ## Migrating to v2.0.0
 
@@ -334,14 +340,15 @@ make sure to read v1.0.0 migration first!
 
 v2.x is a Typescript rewrite of 1.x, removing all jquery events, using classes and overall code cleanup. Your code might need to change from 1.x
 
-1. In general methods that used no args (getter) vs setter are not used in Typescript. 
-Also legacy methods that used to take tons of parameters will now take a single object (typically `GridstackOptions` or `GridStackWidget`).
+1. In general methods that used no args (getter) vs setter are not used in Typescript when the arguments differ.
+Also legacy methods that used to take many parameters will now take a single object (typically `GridstackOptions` or `GridStackWidget`).
 
 ```
 removed `addWidget(el, x, y, width, ...)` --> use the widget options version instead `addWidget(el, {with, ...})`
 `float()` to get value --> `getFloat()`
 'cellHeight()` to get value --> `getCellHeight()`
-'verticalMargin()` to get value --> `getVerticalMargin()`
+'verticalMargin' is now 'margin' grid options and applies to all 4 sides.
+'verticalMargin()` to get value --> `getMargin()`
 ```
 
 2. event signatures are generic and not jquery-ui dependent anymore. `gsresizestop` has been removed as `resizestop|dragstop` are now called **after** the DOm attributes have been updated.

@@ -6,6 +6,7 @@ Change log
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 - [2.0.0-dev (upcoming)](#200-dev-upcoming)
+- [1.2.0 (2020-08-01)](#120-2020-08-01)
 - [1.1.2 (2020-05-17)](#112-2020-05-17)
 - [1.1.1 (2020-03-17)](#111-2020-03-17)
 - [1.1.0 (2020-02-29)](#110-2020-02-29)
@@ -36,11 +37,19 @@ Change log
 
 ## 2.0.0-dev (upcoming)
 
-- re-write to native Typescript, removing all JQuery from main code and API (drag&drop plugin still using for now)
+- re-write to native Typescript, removing all JQuery from main code and API (drag&drop plugin still using for now which use latest v3.5.1)
 - add `getGridItems()` to return list of HTML grid items
 - add `{dragIn | dragInOptions}` grid attributes to handle external drag&drop items
-- add `save()` and `restore()` to serialize grids from JSON, saving all attributes (not just w,h,x,y) [1286](https://github.com/gridstack/gridstack.js/issues/1286)
+- add `save()` and `load()` to serialize grids from JSON, saving all attributes (not just w,h,x,y) [1286](https://github.com/gridstack/gridstack.js/issues/1286)
+- add `margin` to replace `verticalMargin` which affects both dimensions in code, rather than one in code the other in CSS.
+You can now have perfect square cells (default) [723](https://github.com/gridstack/gridstack.js/issues/723)
 - fix [1299](https://github.com/gridstack/gridstack.js/pull/1299) many columns round-off error
+
+## 1.2.0 (2020-08-01)
+
+- fix [1311](https://github.com/gridstack/gridstack.js/issues/1311) domAttr is not defined
+- adds `styleInHead` option to allow for selecting older behavior (adding STYLE element to HEAD element instead of parentNode)
+- update jquery to v3.5.1
 
 ## 1.1.2 (2020-05-17)
 
@@ -210,7 +219,7 @@ thanks [@ermcgrat](https://github.com/ermcgrat) and others for pointing out code
 ## v0.2.5 (2016-03-02)
 
 - update names to respect js naming convention.
-- `cellHeight` and `verticalMargin` can now be string (e.g. '3em', '20px') (Thanks to @jlowcs).
+- `cellHeight` and `margin` can now be string (e.g. '3em', '20px') (Thanks to @jlowcs).
 - add `maxWidth`/`maxHeight` methods.
 - add `enableMove`/`enableResize` methods.
 - fix window resize issue [#331](https://github.com/gridstack/gridstack.js/issues/331)).
